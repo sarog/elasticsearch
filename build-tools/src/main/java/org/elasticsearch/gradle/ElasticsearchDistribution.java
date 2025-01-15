@@ -27,7 +27,8 @@ public class ElasticsearchDistribution implements Buildable, Iterable<File> {
     public enum Platform {
         LINUX,
         WINDOWS,
-        DARWIN;
+        DARWIN,
+        FREEBSD;
 
         @Override
         public String toString() {
@@ -40,6 +41,7 @@ public class ElasticsearchDistribution implements Buildable, Iterable<File> {
         .onLinux(() -> Platform.LINUX)
         .onWindows(() -> Platform.WINDOWS)
         .onMac(() -> Platform.DARWIN)
+        .onFreeBSD(() -> Platform.FREEBSD)
         .supply();
 
     private final String name;
