@@ -263,7 +263,7 @@ configure(subprojects.findAll { ['archives', 'packages'].contains(it.name) }) {
     String preReleaseVersionString = String.format("%d-%s+%d", runtimeJavaMajorVersion, preReleaseType, buildParams.runtimeJava.buildNumber)
 
     project.jdks {
-      ['darwin', 'windows', 'linux'].each { platform ->
+      ['darwin', 'windows', 'linux', 'freebsd'].each { platform ->
         (platform == 'linux' || platform == 'darwin' ? ['x64', 'aarch64'] : ['x64']).each { architecture ->
           "bundled_${platform}_${architecture}" {
             it.version = preReleaseVersionString;
@@ -278,7 +278,7 @@ configure(subprojects.findAll { ['archives', 'packages'].contains(it.name) }) {
   } else {
     // Setup all required JDKs
     project.jdks {
-      ['darwin', 'windows', 'linux'].each { platform ->
+    ['darwin', 'windows', 'linux', 'freebsd'].each { platform ->
         (platform == 'linux' || platform == 'darwin' ? ['x64', 'aarch64'] : ['x64']).each { architecture ->
           "bundled_${platform}_${architecture}" {
             it.platform = platform
@@ -433,7 +433,7 @@ configure(subprojects.findAll { ['archives', 'packages'].contains(it.name) }) {
             it.permissions.unix(0644)
           }
         }
-        List excludePlatforms = ['linux-x86_64', 'linux-aarch64', 'windows-x86_64', 'darwin-x86_64', 'darwin-aarch64']
+        List excludePlatforms = ['linux-x86_64', 'linux-aarch64', 'windows-x86_64', 'darwin-x86_64', 'darwin-aarch64', 'freebsd-x86_64']
         if (os != null) {
           String platform = os + '-' + architecture
           if (architecture == 'x64') {

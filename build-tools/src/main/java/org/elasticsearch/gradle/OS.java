@@ -17,7 +17,8 @@ import java.util.function.Supplier;
 public enum OS {
     WINDOWS("windows"),
     MAC("darwin"),
-    LINUX("linux");
+    LINUX("linux"),
+    FREEBSD("freebsd");
 
     public final String javaOsReference;
 
@@ -36,6 +37,9 @@ public enum OS {
         }
         if (os.startsWith("Mac")) {
             return OS.MAC;
+        }
+        if (os.startsWith("FreeBSD")) {
+            return OS.FREEBSD;
         }
         throw new IllegalStateException("Can't determine OS from: " + os);
     }
@@ -59,9 +63,15 @@ public enum OS {
             return this;
         }
 
+        public Conditional<T> onFreeBSD(Supplier<T> supplier) {
+            conditions.put(FREEBSD, supplier);
+            return this;
+        }
+
         public Conditional<T> onUnix(Supplier<T> supplier) {
             conditions.put(MAC, supplier);
             conditions.put(LINUX, supplier);
+            conditions.put(FREEBSD, supplier);
             return this;
         }
 

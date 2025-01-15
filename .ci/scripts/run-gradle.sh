@@ -18,6 +18,8 @@ if [ -z "$MAX_WORKER_ENV" ]; then
       else
         if [[ "$OSTYPE" == "darwin"* ]]; then
             MAX_WORKERS=`sysctl -n hw.physicalcpu | sed 's/\s\+//g'`
+        elif [[ "$OSTYPE" == "freebsd"* ]]; then
+             MAX_WORKERS=`sysctl -n hw.ncpu | sed 's/\s\+//g'`
         else
             echo "Unsupported OS Type: $OSTYPE"
             exit 1

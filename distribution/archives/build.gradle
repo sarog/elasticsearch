@@ -37,7 +37,7 @@ CopySpec archiveFiles(String distributionType, String os, String architecture, b
         with binFiles(distributionType, isTestDistro)
       }
       into("darwin".equals(os) ? 'jdk.app' : 'jdk') {
-        if (isTestDistro == false) {
+        if (isTestDistro == false && !"freebsd".equals(os)) {
           with jdkFiles(project, os, architecture)
         }
       }
@@ -108,6 +108,13 @@ distribution_archives {
     archiveClassifier = 'darwin-aarch64'
     content {
       archiveFiles('tar', 'darwin', 'aarch64', false)
+    }
+  }
+
+  freebsdTar {
+    archiveClassifier = 'freebsd-x86_64'
+    content {
+      archiveFiles('tar', 'freebsd', 'x64', false)
     }
   }
 
