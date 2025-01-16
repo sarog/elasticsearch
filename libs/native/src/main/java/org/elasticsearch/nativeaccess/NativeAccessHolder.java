@@ -29,6 +29,8 @@ class NativeAccessHolder {
                 inst = new MacNativeAccess();
             } else if (os.startsWith("Windows")) {
                 inst = new WindowsNativeAccess();
+            } else if (os.startsWith("FreeBSD")) {
+                inst = new FreebsdNativeAccess();
             } else {
                 logger.warn("Unsupported OS [" + os + "]. Native methods will be disabled.");
             }
