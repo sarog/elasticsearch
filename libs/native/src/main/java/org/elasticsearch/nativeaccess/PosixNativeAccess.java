@@ -200,7 +200,8 @@ abstract class PosixNativeAccess extends AbstractNativeAccess {
     }
 
     static boolean isNativeVectorLibSupported() {
-        return Runtime.version().feature() >= 21 && (isMacOrLinuxAarch64() || isLinuxAmd64()) && checkEnableSystemProperty();
+        return Runtime.version().feature() >= 21 && (isMacOrLinuxAarch64() || isLinuxAmd64() || isFreebsdAmd64()) &&
+            checkEnableSystemProperty();
     }
 
     /**
@@ -215,6 +216,12 @@ abstract class PosixNativeAccess extends AbstractNativeAccess {
     static boolean isMacOrLinuxAarch64() {
         String name = System.getProperty("os.name");
         return (name.startsWith("Mac") || name.startsWith("Linux")) && System.getProperty("os.arch").equals("aarch64");
+    }
+
+    /** Returns true if the OS is FreeBSD, and the architecture is x64. */
+    static boolean isFreebsdAmd64() {
+        String name = System.getProperty("os.name");
+        return (name.startsWith("FreeBSD")) && System.getProperty("os.arch").equals("amd64");
     }
 
     /** -Dorg.elasticsearch.nativeaccess.enableVectorLibrary=false to disable.*/
