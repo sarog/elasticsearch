@@ -9,6 +9,7 @@
 
 package org.elasticsearch.nativeaccess.lib;
 
-/** A marker interface for libraries that can be loaded by {@link org.elasticsearch.nativeaccess.lib.NativeLibraryProvider} */
-public sealed interface NativeLibrary permits JavaLibrary, PosixCLibrary, LinuxCLibrary, MacCLibrary, Kernel32Library, VectorLibrary,
-    ZstdLibrary, BsdCLibrary {}
+public non-sealed interface BsdCLibrary extends NativeLibrary {
+
+    int posix_fallocate(int fd, long offset, long length);
+}
