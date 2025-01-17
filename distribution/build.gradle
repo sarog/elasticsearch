@@ -651,7 +651,6 @@ artifacts.add('log4jConfig', file("${defaultOutputs}/log4j2.properties")) {
   type = 'file'
   name = 'log4j2.properties'
   builtBy 'buildDefaultLog4jConfig'
-  builtBy 'buildDefaultLog4jConfig'
 }
 
 tasks.named('resolveAllDependencies') {
