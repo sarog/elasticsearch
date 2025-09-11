@@ -172,8 +172,10 @@ public record FilesEntitlement(List<FileData> filesData) implements Entitlement 
             return Platform.MACOS;
         } else if (platform.equals("windows")) {
             return Platform.WINDOWS;
+        } else if (platform.equals("freebsd")) {
+            return Platform.FREEBSD;
         } else {
-            throw new PolicyValidationException("invalid platform: " + platform + ", valid values: [linux, macos, windows]");
+            throw new PolicyValidationException("invalid platform: " + platform + ", valid values: [linux, macos, windows, freebsd]");
         }
     }
 

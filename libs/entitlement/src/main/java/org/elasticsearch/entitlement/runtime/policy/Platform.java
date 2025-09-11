@@ -12,7 +12,8 @@ package org.elasticsearch.entitlement.runtime.policy;
 public enum Platform {
     LINUX,
     MACOS,
-    WINDOWS;
+    WINDOWS,
+    FREEBSD;
 
     private static final Platform current = findCurrent();
 
@@ -24,6 +25,8 @@ public enum Platform {
             return MACOS;
         } else if (os.startsWith("Windows")) {
             return WINDOWS;
+        } else if (os.startsWith("FreeBSD")) {
+            return FREEBSD;
         } else {
             throw new AssertionError("Unsupported platform [" + os + "]");
         }
