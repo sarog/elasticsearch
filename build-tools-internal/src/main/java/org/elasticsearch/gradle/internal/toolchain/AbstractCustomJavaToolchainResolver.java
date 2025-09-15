@@ -25,6 +25,7 @@ abstract class AbstractCustomJavaToolchainResolver implements JavaToolchainResol
             case MAC_OS -> (v == null || v.equals(JvmVendorSpec.ADOPTIUM) == false) ? "macos" : "mac";
             case LINUX -> "linux";
             case WINDOWS -> "windows";
+            case FREE_BSD -> "freebsd";
             default -> throw new UnsupportedOperationException("Operating system " + operatingSystem);
         };
     }

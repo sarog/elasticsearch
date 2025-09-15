@@ -65,7 +65,8 @@ public abstract class OracleOpenJdkToolchainResolver extends AbstractCustomJavaT
     private static final List<OperatingSystem> supportedOperatingSystems = List.of(
         OperatingSystem.MAC_OS,
         OperatingSystem.LINUX,
-        OperatingSystem.WINDOWS
+        OperatingSystem.WINDOWS,
+        OperatingSystem.FREE_BSD
     );
 
     // package private so it can be replaced by tests
