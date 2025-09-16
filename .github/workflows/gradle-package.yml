@@ -1,0 +1,45 @@
+name: FreeBSD Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    if: github.repository == 'portsbuild/elasticsearch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # packages: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDKs
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          architecture: x64
+          cache: 'gradle'
+          java-version: |
+            17
+            19
+            20
+            21
+            22
+            23
+            25
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Build with Gradle
+        run: ./gradlew distribution:archives:freebsd-tar:assemble -D"build.snapshot=false" -D"license.key=public.key"
+        env:
+          CI: false
+
+      - name: Upload distribution archive
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: distribution/archives/freebsd-tar/build/distributions/elasticsearch-*-freebsd-x86_64.tar.gz
