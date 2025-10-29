@@ -99,7 +99,10 @@ public class SimpleNetty4TransportTests extends AbstractSimpleTransportTestCase 
     }
 
     public void testDefaultKeepAliveSettings() throws IOException {
-        assumeTrue("setting default keepalive options not supported on this platform", (IOUtils.LINUX || IOUtils.MAC_OS_X));
+        assumeTrue(
+            "setting default keepalive options not supported on this platform",
+            (IOUtils.LINUX || IOUtils.MAC_OS_X || IOUtils.FREEBSD)
+        );
         try (
             MockTransportService serviceC = buildService("TS_C", VersionInformation.CURRENT, TransportVersion.current(), Settings.EMPTY);
             MockTransportService serviceD = buildService("TS_D", VersionInformation.CURRENT, TransportVersion.current(), Settings.EMPTY)
