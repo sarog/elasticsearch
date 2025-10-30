@@ -103,8 +103,13 @@ dependencies {
 
 protobuf {
   protoc {
-    // The artifact spec for the Protobuf Compiler
-    artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    if (System.getProperty("os.name", "").startsWith("FreeBSD")) {
+      // Requires devel/protobuf to be installed
+      path = '/usr/local/bin/protoc'
+    } else {
+      // The artifact spec for the Protobuf Compiler
+      artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
   }
 }
 
