@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CLI_JAVA_OPTS="--add-opens java.base/sun.security.provider=ALL-UNNAMED $CLI_JAVA_OPTS"
 CLI_LIBS=lib/tools/plugin-cli
