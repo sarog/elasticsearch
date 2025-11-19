@@ -207,10 +207,10 @@ final class BootstrapChecks {
         if (Constants.LINUX) {
             checks.add(new MaxNumberOfThreadsCheck());
         }
-        if (Constants.LINUX || Constants.MAC_OS_X) {
+        if (Constants.LINUX || Constants.MAC_OS_X || Constants.FREE_BSD) {
             checks.add(new MaxSizeVirtualMemoryCheck());
         }
-        if (Constants.LINUX || Constants.MAC_OS_X) {
+        if (Constants.LINUX || Constants.MAC_OS_X || Constants.FREE_BSD) {
             checks.add(new MaxFileSizeCheck());
         }
         if (Constants.LINUX) {
