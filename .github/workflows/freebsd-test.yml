@@ -1,0 +1,67 @@
+name: FreeBSD Tests
+on:
+  push:
+    branches: [ "freebsd-tests" ]
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/*.yml'
+  pull_request:
+    branches: [ "freebsd-tests" ]
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/*.yml'
+  workflow_dispatch:
+
+jobs:
+  test-freebsd:
+    if: github.repository == 'portsbuild/elasticsearch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CI: false # Disabling CI for now
+      RUNTIME_JAVA_HOME: /usr/local/openjdk25
+      JAVA_TOOLCHAIN_HOME: /usr/local/openjdk25
+      LOCAL_VEC_BINARY_OS: freebsd
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Run Elasticsearch tests on FreeBSD
+        id: test-es-freebsd
+        uses: portsbuild/freebsd-vm@dev
+        with:
+          usesh: true
+          envs: 'CI RUNTIME_JAVA_HOME JAVA_TOOLCHAIN_HOME LOCAL_VEC_BINARY_OS'
+          release: "14.3"
+          # arch: aarch64
+          copyback: false
+          prepare: |
+            freebsd-version
+            pwd
+            whoami
+            sysctl hw.model
+            sysctl hw.ncpu
+            sysctl hw.physmem
+            sysctl hw.usermem
+
+            mkdir -p /usr/local/etc/pkg/repos
+            printf 'FreeBSD: { \n  url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest"\n }\n' > /usr/local/etc/pkg/repos/FreeBSD.conf
+            pkg update -f
+            pkg install -y bash curl openjdk17 openjdk19 openjdk20 openjdk21 openjdk22 openjdk23 openjdk25 protobuf gcc13
+
+            mkdir ~/.gradle
+            printf "org.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk19,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25\n" > ~/.gradle/gradle.properties
+
+            mount -t procfs proc /proc
+            java -version
+
+            pw user add -n action -m
+            su action -c 'mkdir ~/.gradle'
+            su action -c 'printf "org.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk19,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25\n" > ~/.gradle/gradle.properties'
+            su action -c 'printf "export RUNTIME_JAVA_HOME=/usr/local/openjdk25\nexport JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25\nexport LOCAL_VEC_BINARY_OS=freebsd\export CI=false" >> ~/.shrc'
+
+            chown -R action:wheel .
+          run: |
+            su action -c './gradlew buildSharedLibraryAndCopy'
+            cp /usr/local/lib/libzstd.so libs/native/libraries/build/platform/freebsd-x64/
+            su action -c './gradlew test -D"tests.haltonfailure=false" -D"build.snapshot=false" -D"license.key=public.key" -D"run.license_type=trial" -D"org.elasticsearch.nativeaccess.enableVectorLibrary=true"'
