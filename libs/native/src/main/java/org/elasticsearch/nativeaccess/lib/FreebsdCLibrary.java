@@ -9,7 +9,7 @@
 
 package org.elasticsearch.nativeaccess.lib;
 
-public non-sealed interface BsdCLibrary extends NativeLibrary {
+public interface FreebsdCLibrary {
 
     int posix_fallocate(int fd, long offset, long length);
 }
