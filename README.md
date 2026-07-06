@@ -104,7 +104,7 @@ Clone this repository by either checking out a release branch such as `freebsd-8
 
 ```shell
 git clone --depth 1 --branch v8.19.18 https://github.com/portsbuild/elasticsearch elasticsearch-8.19.18
-cd elasticsearch-8.19.17
+cd elasticsearch-8.19.18
 ```
 
 Set the default JDK to 25 and begin the build:
