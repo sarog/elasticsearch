@@ -169,10 +169,12 @@ public abstract class PosixCLibrary {
     public interface Stat64 {
         @Offset(platforms = { Platform.LINUX_X64, Platform.LINUX_AARCH64 }, value = 48)
         @Offset(platforms = { Platform.DARWIN_X64, Platform.DARWIN_AARCH64 }, value = 96)
+        @Offset(platforms = { Platform.FREEBSD_X64 }, value = 112)
         long st_size();
 
         @Offset(platforms = { Platform.LINUX_X64, Platform.LINUX_AARCH64 }, value = 64)
         @Offset(platforms = { Platform.DARWIN_X64, Platform.DARWIN_AARCH64 }, value = 104)
+        @Offset(platforms = { Platform.FREEBSD_X64 }, value = 120)
         long st_blocks();
     }
 
