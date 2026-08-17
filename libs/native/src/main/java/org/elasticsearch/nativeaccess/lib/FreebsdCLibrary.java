@@ -9,7 +9,12 @@
 
 package org.elasticsearch.nativeaccess.lib;
 
+import org.elasticsearch.foreign.CaptureSystemError;
+import org.elasticsearch.foreign.Function;
+
 public interface FreebsdCLibrary {
 
+    @CaptureSystemError
+    @Function("posix_fallocate")
     int posix_fallocate(int fd, long offset, long length);
 }
