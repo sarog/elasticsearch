@@ -24,7 +24,7 @@ public class FreebsdNativeAccess extends PosixNativeAccess {
     // Offset of st_size: 112 bytes
     // Offset of st_blocks: 120 bytes
     FreebsdNativeAccess(NativeLibraryProvider libraryProvider) {
-        super("FreeBSD", libraryProvider, new PosixConstants(-1L, 10, 1, 6, 512, 224, 112, 120));
+        super("FreeBSD", libraryProvider, new PosixConstants(-1L, 10, 1, 6, 512));
         this.bsdLibc = libraryProvider.getLibrary(FreebsdCLibrary.class);
     }
 
