@@ -23,9 +23,15 @@ public final class PosixSymbolResolver implements SymbolResolver {
     @Override
     public ResolvedSymbol resolve(String symbolName, SymbolLookup lookup) {
         if ("fstat64".equals(symbolName)) {
-            var fstat64 = lookup.find("fstat64");
+            String fstat = "fstat64";
+            if (System.getProperty("os.name", "").startsWith("FreeBSD")) {
+                fstat = "fstat";
+            }
+
+            var fstat64 = lookup.find(fstat);
+
             if (fstat64.isPresent()) {
-                return new ResolvedSymbol("fstat64", fstat64.get());
+                return new ResolvedSymbol(fstat, fstat64.get());
             }
             var fxstat = lookup.find("__fxstat").orElseThrow(() -> new UnsatisfiedLinkError("neither fstat64 nor __fxstat found"));
             return new ResolvedSymbol("__fxstat", fxstat);

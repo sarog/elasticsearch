@@ -11,7 +11,10 @@ package org.elasticsearch.nativeaccess.lib;
 
 import org.elasticsearch.foreign.CaptureSystemError;
 import org.elasticsearch.foreign.Function;
+import org.elasticsearch.foreign.LibrarySpecification;
+import org.elasticsearch.foreign.Platform;
 
+@LibrarySpecification(unavailableOn = { Platform.WINDOWS_X64 })
 public interface FreebsdCLibrary {
 
     @CaptureSystemError
