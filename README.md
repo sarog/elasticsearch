@@ -15,6 +15,7 @@ The following table lists the actively maintained releases on this repository. T
 | 9.2  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.2)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch92) |
 | 9.3  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.3)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch93) |
 | 9.4  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.4)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch94) |
+| 9.5  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.5)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch95) |
 
 The following branches are frequently rebased (force-pushed) to keep the repository up-to-date with upstream changes:
 
@@ -174,14 +175,6 @@ export RUNTIME_JAVA_HOME=/usr/local/openjdk25
 export JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25
 ./gradlew -p benchmarks run --args 'Int7uScorerBenchmark' -Dorg.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25 -D"--enable-native-access=ALL-UNNAMED"
 ```
-
-## Kibana, Logstash & Beats
-
-Administrators may be interested in the following related components when running the ELK stack:
-
-- [Kibana 8.19](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=289759)
-- [Beats 8.19](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=290094)
-- [Logstash 8.19](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=290095)
 
 ## Support
 
