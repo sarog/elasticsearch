@@ -8,21 +8,22 @@ This project is an unofficial port of Elasticsearch for FreeBSD systems. It was 
 
 The following table lists the actively maintained releases on this repository. These versions are tested & supported on FreeBSD 14.4 and presumed to work on 13.5 and 15.x.
 
-| ES   | Branch                                                                | Bugzilla                                                         | Makefile                                                                          |
-|------|-----------------------------------------------------------------------|------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| 8.19 | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-8.19) | [Link](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=288653) | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch8)  |
-| 9.1  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.1)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch91) |
-| 9.2  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.2)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch92) |
-| 9.3  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.3)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch93) |
-| 9.4  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.4)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch94) |
-| 9.5  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.5)  | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch95) |
+| ES   | Branch                                                                | Diff                                                                                                  | Bugzilla                                                         | Makefile                                                                          |
+|------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| 8.19 | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-8.19) | [Link](https://github.com/elastic/elasticsearch/compare/8.19...portsbuild:elasticsearch:freebsd-8.19) | [Link](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=288653) | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch8)  |
+| 9.1  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.1)  | [Link](https://github.com/elastic/elasticsearch/compare/9.1...portsbuild:elasticsearch:freebsd-9.1)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch91) |
+| 9.2  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.2)  | [Link](https://github.com/elastic/elasticsearch/compare/9.2...portsbuild:elasticsearch:freebsd-9.2)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch92) |
+| 9.3  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.3)  | [Link](https://github.com/elastic/elasticsearch/compare/9.3...portsbuild:elasticsearch:freebsd-9.3)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch93) |
+| 9.4  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.4)  | [Link](https://github.com/elastic/elasticsearch/compare/9.4...portsbuild:elasticsearch:freebsd-9.4)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch94) |
+| 9.5  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.5)  | [Link](https://github.com/elastic/elasticsearch/compare/9.5...portsbuild:elasticsearch:freebsd-9.5)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch95) |
+
 
 The following branches are frequently rebased (force-pushed) to keep the repository up-to-date with upstream changes:
 
-| Branch                                                                          | Description                                                                              |
-|---------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| [freebsd](https://github.com/portsbuild/elasticsearch/tree/freebsd)             | The "base" repo. Contains the required changes to run Elasticsearch on FreeBSD natively. |
-| [freebsd-tests](https://github.com/portsbuild/elasticsearch/tree/freebsd-tests) | Contains the full suite of tests for the port.                                           |
+| Branch                                                                          | Description                                                                              | Diff                                                                                                         |
+|---------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| [freebsd](https://github.com/portsbuild/elasticsearch/tree/freebsd)             | The "base" repo. Contains the required changes to run Elasticsearch on FreeBSD natively. | [Link](https://github.com/portsbuild/elasticsearch/compare/freebsd...portsbuild:elasticsearch:freebsd)       |
+| [freebsd-tests](https://github.com/portsbuild/elasticsearch/tree/freebsd-tests) | Contains the full suite of tests for the port.                                           | [Link](https://github.com/portsbuild/elasticsearch/compare/freebsd...portsbuild:elasticsearch:freebsd-tests) |
 
 
 ## Installation
