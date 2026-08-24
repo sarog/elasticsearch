@@ -6,11 +6,15 @@ on:
       - '**.md'
       - '.github/workflows/*.yml'
   pull_request:
-    branches: [ "freebsd-tests" ]
+    branches: [ "freebsd-*" ]
     paths-ignore:
       - '**.md'
       - '.github/workflows/*.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-freebsd:
@@ -22,46 +26,67 @@ jobs:
       CI: false # Disabling CI for now
       RUNTIME_JAVA_HOME: /usr/local/openjdk25
       JAVA_TOOLCHAIN_HOME: /usr/local/openjdk25
-      LOCAL_VEC_BINARY_OS: freebsd
+      LOCAL_VEC_BINARY_OS: true
+      LOCAL_ZSTD_BINARY: true
+      BUILD_PARAMS: '-Dbuild.snapshot=false -Dlicense.key=x-pack/license-tools/src/test/resources/public.key -Drun.license_type=trial -Des.nativelibs.path=/usr/local/lib -Dnode.processors=4 -Dxpack.ml.enabled=false'
+      TEST_PARAMS: '-Dtests.haltonfailure=false -Dtests.es.node.processors=4 -Dtests.es.xpack.ml.enabled=false -Dtests.bwc.git_fetch_latest=false'
+      TEST_JVM_PARAMS: '-Dtests.jvm.argline="--add-modules=jdk.incubator.vector --enable-native-access=ALL-UNNAMED -XX:ActiveProcessorCount=10 -Dbuild.snapshot=false -Dlicense.key=x-pack/license-tools/src/test/resources/public.key -Dfreebsd.tests.skipTestTimeoutPerConnection=true"'
+      CUSTOM_PARAMS: '-Dfreebsd.override.jdk=true -Dfreebsd.tests.skipTestTimeoutPerConnection=true'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - name: Run Elasticsearch tests on FreeBSD
+      - name: Start VM
         id: test-es-freebsd
-        uses: portsbuild/freebsd-vm@dev
+        uses: portsbuild-vm/freebsd-vm@main
         with:
-          usesh: true
-          envs: 'CI RUNTIME_JAVA_HOME JAVA_TOOLCHAIN_HOME LOCAL_VEC_BINARY_OS'
-          release: "14.3"
+          release: "14.4"
           # arch: aarch64
+          mem: 11264
+          cpu: 4
+          envs: 'CI RUNTIME_JAVA_HOME JAVA_TOOLCHAIN_HOME LOCAL_VEC_BINARY_OS LOCAL_ZSTD_BINARY BUILD_PARAMS TEST_PARAMS TEST_JVM_PARAMS CUSTOM_PARAMS'
           copyback: false
+          cache-after-prepare: true
           prepare: |
-            freebsd-version
-            pwd
-            whoami
-            sysctl hw.model
-            sysctl hw.ncpu
-            sysctl hw.physmem
-            sysctl hw.usermem
-
+            echo "=== Install dependencies"
             mkdir -p /usr/local/etc/pkg/repos
-            printf 'FreeBSD: { \n  url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest"\n }\n' > /usr/local/etc/pkg/repos/FreeBSD.conf
-            pkg update -f
-            pkg install -y bash curl openjdk17 openjdk19 openjdk20 openjdk21 openjdk22 openjdk23 openjdk25 protobuf gcc13
-
-            mkdir ~/.gradle
-            printf "org.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk19,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25\n" > ~/.gradle/gradle.properties
-
+            printf 'FreeBSD: {\n  url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest"\n}\n' > /usr/local/etc/pkg/repos/FreeBSD.conf
+            pkg update -f -q
+            pkg install -y bash curl openjdk17 openjdk21 openjdk25 gmake protobuf
+            echo "=== Mount procfs"
             mount -t procfs proc /proc
             java -version
+            echo "=== Add dedicated action user"
+            pw user add -n action -m -L root -u 666
+            kldload mac_portacl
+            sysctl security.mac.portacl.rules="uid:666:tcp:80,uid:666:tcp:443"
 
-            pw user add -n action -m
-            su action -c 'mkdir ~/.gradle'
-            su action -c 'printf "org.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk19,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25\n" > ~/.gradle/gradle.properties'
-            su action -c 'printf "export RUNTIME_JAVA_HOME=/usr/local/openjdk25\nexport JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25\nexport LOCAL_VEC_BINARY_OS=freebsd\export CI=false" >> ~/.shrc'
+      - name: Show runner specs
+        shell: freebsd {0}
+        run: |
+          freebsd-version
+          sysctl hw.model
+          sysctl hw.ncpu
+          sysctl hw.physmem
+          sysctl hw.usermem
+          sysctl kern.smp.cores
+          sysctl kern.maxproc
+          sysctl kern.maxprocperuid
 
-            chown -R action:wheel .
-          run: |
-            su action -c './gradlew buildSharedLibraryAndCopy'
-            cp /usr/local/lib/libzstd.so libs/native/libraries/build/platform/freebsd-x64/
-            su action -c './gradlew test -D"tests.haltonfailure=false" -D"build.snapshot=false" -D"license.key=public.key" -D"run.license_type=trial" -D"org.elasticsearch.nativeaccess.enableVectorLibrary=true"'
+      - name: Build and test
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE
+          sed -i '' "s/localhost.my.domain$/localhost.my.domain $(hostname)/" /etc/hosts
+          chmod +x ./.github/scripts/prepare.sh
+          su action -c 'env'
+          su action -c './.github/scripts/prepare.sh'
+          chown -R action:wheel .
+          mount -t procfs proc /proc
+          mount -p
+          echo "=== Purging sources < JDK21 && > JDK25"
+          su action -c 'rm -rf libs/entitlement/src/main26'
+          su action -c 'rm -rf libs/entitlement/src/main27'
+          su action -c 'libs/entitlement/qa/entitlement-test-plugin/src/main26'
+
+          echo "=== Running all tests"
+          su -m -c root action -c "./gradlew -S --no-scan test ${BUILD_PARAMS} ${TEST_PARAMS} ${TEST_JVM_PARAMS} ${CUSTOM_PARAMS}"
