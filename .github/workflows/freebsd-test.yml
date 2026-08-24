@@ -6,11 +6,15 @@ on:
       - '**.md'
       - '.github/workflows/*.yml'
   pull_request:
-    branches: [ "freebsd-tests" ]
+    branches: [ "freebsd-*" ]
     paths-ignore:
       - '**.md'
       - '.github/workflows/*.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test-freebsd:
@@ -23,45 +27,83 @@ jobs:
       RUNTIME_JAVA_HOME: /usr/local/openjdk25
       JAVA_TOOLCHAIN_HOME: /usr/local/openjdk25
       LOCAL_VEC_BINARY_OS: freebsd
-    steps:
-      - uses: actions/checkout@v5
+      LOCAL_PQRS_BINARY: true
+      NATIVE_BUILD: local
+      COMMON_BUILD_PARAMS: '-D"build.snapshot=false" -D"license.key=public.key" -D"run.license_type=trial" -D"org.elasticsearch.nativeaccess.enableVectorLibrary=true"'
+      COMMON_TEST_PARAMS: '-D"tests.haltonfailure=false" -D"tests.es.node.processors=4" -D"tests.bwc.git_fetch_latest=false" -Dtests.jvm.argline="--add-modules=jdk.incubator.vector --enable-native-access=ALL-UNNAMED"'
+      ES_JAVA_OPTS: '-XX:ActiveProcessorCount=4'
 
-      - name: Run Elasticsearch tests on FreeBSD
+      # -Dtests.testfeatures.enabled=true -Des.nativelibs.path="
+      # -add-opens=java.base/java.security.cert=ALL-UNNAMED --add-opens=java.base/java.nio.channels=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/javax.net.ssl=ALL-UNNAMED --add-opens=java.base/java.nio.file=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.management/java.lang.management=ALL-UNNAMED
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Start VM
         id: test-es-freebsd
-        uses: portsbuild/freebsd-vm@dev
+        uses: portsbuild-vm/freebsd-vm@main
         with:
-          usesh: true
-          envs: 'CI RUNTIME_JAVA_HOME JAVA_TOOLCHAIN_HOME LOCAL_VEC_BINARY_OS'
-          release: "14.3"
+          release: "14.4"
           # arch: aarch64
+          mem: 11264
+          cpu: 4
+          envs: 'CI RUNTIME_JAVA_HOME JAVA_TOOLCHAIN_HOME LOCAL_VEC_BINARY_OS LOCAL_PQRS_BINARY NATIVE_BUILD COMMON_BUILD_PARAMS COMMON_TEST_PARAMS ES_JAVA_OPTS'
           copyback: false
+          cache-after-prepare: false
           prepare: |
             freebsd-version
             pwd
-            whoami
             sysctl hw.model
             sysctl hw.ncpu
             sysctl hw.physmem
             sysctl hw.usermem
 
-            mkdir -p /usr/local/etc/pkg/repos
-            printf 'FreeBSD: { \n  url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest"\n }\n' > /usr/local/etc/pkg/repos/FreeBSD.conf
-            pkg update -f
-            pkg install -y bash curl openjdk17 openjdk19 openjdk20 openjdk21 openjdk22 openjdk23 openjdk25 protobuf gcc13
+      - name: Install dependencies
+        shell: freebsd {0}
+        run: |
+          mkdir -p /usr/local/etc/pkg/repos
+          printf 'FreeBSD: {\n  url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest"\n}\n' > /usr/local/etc/pkg/repos/FreeBSD.conf
+          pkg update -f -q
+          pkg install -y bash curl openjdk17 openjdk21 openjdk25 gmake protobuf rust
 
-            mkdir ~/.gradle
-            printf "org.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk19,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25\n" > ~/.gradle/gradle.properties
+      - name: Mount proc
+        shell: freebsd {0}
+        run: |
+          mount -t procfs proc /proc
+          java -version
 
-            mount -t procfs proc /proc
-            java -version
+      - name: Add dedicated action user
+        shell: freebsd {0}
+        run: |
+          pw user add -n action -m
+          su action -c 'mkdir ~/.gradle'
+          su action -c 'printf "org.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk21,/usr/local/openjdk25\n" > ~/.gradle/gradle.properties'
+          su action -c 'printf "export RUNTIME_JAVA_HOME=/usr/local/openjdk25\nexport JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25\n" >> ~/.profile'
+          su action -c 'printf "export LOCAL_VEC_BINARY_OS=freebsd\nLOCAL_PQRS_BINARY=true\nexport NATIVE_BUILD=local\nexport CI=false\n" >> ~/.profile'
+          su action -c 'printf "export ES_JAVA_OPTS=-XX:ActiveProcessorCount=4\n" >> ~/.profile'
+          cd $GITHUB_WORKSPACE
+          chown -R action:wheel .
 
-            pw user add -n action -m
-            su action -c 'mkdir ~/.gradle'
-            su action -c 'printf "org.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk19,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25\n" > ~/.gradle/gradle.properties'
-            su action -c 'printf "export RUNTIME_JAVA_HOME=/usr/local/openjdk25\nexport JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25\nexport LOCAL_VEC_BINARY_OS=freebsd\export CI=false" >> ~/.shrc'
-
-            chown -R action:wheel .
-          run: |
-            su action -c './gradlew buildSharedLibraryAndCopy'
-            cp /usr/local/lib/libzstd.so libs/native/libraries/build/platform/freebsd-x64/
-            su action -c './gradlew test -D"tests.haltonfailure=false" -D"build.snapshot=false" -D"license.key=public.key" -D"run.license_type=trial" -D"org.elasticsearch.nativeaccess.enableVectorLibrary=true"'
+      - name: Build and test
+        shell: freebsd {0}
+        run: |
+          cd $GITHUB_WORKSPACE
+          su action -c 'rm -rf libs/entitlement/src/main26'
+          su action -c 'rm -rf libs/entitlement/src/main27'
+          su action -c 'rm -rf libs/entitlement/qa/entitlement-test-plugin/src/main26'
+          su action -c 'ls -alh libs/entitlement/src'
+          ls -alh libs/entitlement/src
+          su action -c './gradlew copyLibzstd'
+          ls -alh libs/native/libraries/build/platform/freebsd-x64/
+          su action -c './gradlew classes "${COMMON_BUILD_PARAMS}"'
+          echo "=== Building vector library"
+          su action -c 'cd libs/simdvec/native/ ; gmake local install'
+          ls -alh libs/native/libraries/build/platform/freebsd-x64/
+          echo "=== Running ProcessLimits tests"
+          su action -c './gradlew ":libs:native:test" --tests "org.elasticsearch.nativeaccess.ProcessLimitsTests.*" "${COMMON_BUILD_PARAMS} ${COMMON_TEST_PARAMS}"'
+          ls -alh build/libs/vec/freebsd/amd64/
+          echo "=== Running Preallocate tests"
+          su action -c './gradlew ":libs:native:test" --tests "org.elasticsearch.nativeaccess.PreallocateTests.*" "${COMMON_BUILD_PARAMS} ${COMMON_TEST_PARAMS}"'
+          echo "=== Running remaining native access tests"
+          su action -c './gradlew ":libs:native:test" --tests "org.elasticsearch.nativeaccess.*" "${COMMON_BUILD_PARAMS} ${COMMON_TEST_PARAMS}"'
+          echo "=== Running all tests"
+          su action -c './gradlew test "${COMMON_BUILD_PARAMS} ${COMMON_TEST_PARAMS}"'
