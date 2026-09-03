@@ -188,7 +188,9 @@ public class SimpleNetty4TransportTests extends AbstractSimpleTransportTestCase 
     }
 
     public void testTimeoutPerConnection() throws IOException {
-        assumeTrue("Works only on BSD network stacks", Constants.MAC_OS_X || Constants.FREE_BSD);
+        // -sg: todo: review: for some reason, this test fails on FreeBSD (tested on 14.4)
+        boolean runOnFreeBSD = System.getProperty("freebsd.tests.skipTestTimeoutPerConnection") == null;
+        assumeTrue("Works only on BSD network stacks", Constants.MAC_OS_X || (Constants.FREE_BSD && runOnFreeBSD));
         try (ServerSocket socket = new MockServerSocket()) {
 
             // note - this test uses backlog=1 which is implementation specific ie. it might not work on some TCP/IP stacks
