@@ -23,6 +23,7 @@ jobs:
           cache: 'gradle'
           java-version: |
             17
+            18
             19
             20
             21
@@ -30,7 +31,7 @@ jobs:
             23
             25
             26
-            27
+            27-ea
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
