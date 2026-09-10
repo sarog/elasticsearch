@@ -53,7 +53,7 @@ import static org.hamcrest.Matchers.is;
 public class SpawnerNoBootstrapTests extends LuceneTestCase {
 
     private static final String CONTROLLER_SOURCE = """
-        #!/bin/bash
+        #!/usr/bin/env bash
 
         echo I am alive
         echo "I am an error" >&2

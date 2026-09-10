@@ -64,7 +64,8 @@ class DistributionDownloadFixture {
 
     private static String urlPath(String version,ElasticsearchDistribution.Platform platform) {
         String fileType = ((platform == ElasticsearchDistribution.Platform.LINUX ||
-                platform == ElasticsearchDistribution.Platform.DARWIN)) ? "tar.gz" : "zip"
+                platform == ElasticsearchDistribution.Platform.DARWIN ||
+                platform == ElasticsearchDistribution.Platform.FREEBSD)) ? "tar.gz" : "zip"
         "/downloads/elasticsearch/elasticsearch-${version}-${platform}-${Architecture.current().classifier}.$fileType"
     }
 

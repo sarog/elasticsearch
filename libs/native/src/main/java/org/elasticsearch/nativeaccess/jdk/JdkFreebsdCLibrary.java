@@ -9,7 +9,7 @@
 
 package org.elasticsearch.nativeaccess.jdk;
 
-import org.elasticsearch.nativeaccess.lib.BsdCLibrary;
+import org.elasticsearch.nativeaccess.lib.FreebsdCLibrary;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.invoke.MethodHandle;
@@ -19,7 +19,7 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static org.elasticsearch.nativeaccess.jdk.JdkPosixCLibrary.downcallHandleWithErrno;
 import static org.elasticsearch.nativeaccess.jdk.JdkPosixCLibrary.errnoState;
 
-public class JdkFreebsdCLibrary implements BsdCLibrary {
+class JdkFreebsdCLibrary implements FreebsdCLibrary {
 
     private static final MethodHandle posix_fallocate$mh = downcallHandleWithErrno(
         "posix_fallocate",

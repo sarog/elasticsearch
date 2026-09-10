@@ -82,7 +82,8 @@ class HardcodedEntitlements {
             FilesEntitlement.FileData.ofPath(Path.of("/proc/self/mountinfo"), READ).withPlatform(LINUX),
             FilesEntitlement.FileData.ofPath(Path.of("/proc/diskstats"), READ).withPlatform(LINUX),
             // OS release on FreeBSD
-            FilesEntitlement.FileData.ofPath(Path.of("/etc/os-release"), READ).withPlatform(FREEBSD)
+            FilesEntitlement.FileData.ofPath(Path.of("/etc/os-release"), READ).withPlatform(FREEBSD),
+            FilesEntitlement.FileData.ofPath(Path.of("/proc/curproc/rlimit"), READ).withPlatform(FREEBSD)
         );
         if (pidFile != null) {
             serverModuleFileDatas.add(FilesEntitlement.FileData.ofPath(pidFile, READ_WRITE));

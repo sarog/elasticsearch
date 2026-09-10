@@ -75,6 +75,7 @@ public class ConfigurationTests extends PackagingTestCase {
         Path data = createTempDir("temp-data");
         // Make the data directory writeable
         Platforms.onLinux(() -> Files.setPosixFilePermissions(data, fromString("rwxrwxrwx")));
+        Platforms.onFreeBSD(() -> Files.setPosixFilePermissions(data, fromString("rwxrwxrwx")));
         Path symlinkedData = createTempDir("symlink-data");
         Files.delete(symlinkedData); // delete so we can replace it with a symlink
         Files.createSymbolicLink(symlinkedData, data);
