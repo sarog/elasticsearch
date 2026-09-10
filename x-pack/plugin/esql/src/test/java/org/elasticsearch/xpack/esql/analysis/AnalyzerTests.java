@@ -2364,6 +2364,39 @@ public class AnalyzerTests extends ESTestCase {
         assertThat(e.getMessage(), containsString("[+] has arguments with incompatible types [datetime] and [datetime]"));
     }
 
+    public void testEvalResolvesForwardReferenceWithImplicitCasting() {
+        Analyzer analyzer = analyzer(loadMapping("mapping-hosts.json", "hosts"));
+
+        analyze("""
+            FROM hosts
+            | EVAL ip = CASE(CIDR_MATCH(ip0, "10.0.0.0/8") OR ip0 == "127.0.0.1", TO_STRING(ip0), null),
+                   field = CASE(ip IS NOT NULL, "a", "b")
+            | STATS count = COUNT(*) BY field
+            """, analyzer);
+    }
+
+    public void testEvalResolvesForwardReferenceWithImplicitCasting2() {
+        Analyzer analyzer = analyzer(loadMapping("mapping-hosts.json", "hosts"));
+
+        analyze("""
+            FROM hosts
+            | EVAL ip = CASE(CIDR_MATCH(ip0, "10.0.0.0/8") OR ip0 IN ("127.0.0.1", "192.168.1.1"), TO_STRING(ip0), null),
+                   field = CASE(ip IS NOT NULL, "a", "b")
+            | STATS count = COUNT(*) BY field
+            """, analyzer);
+    }
+
+    public void testEvalResolvesForwardReferenceWithImplicitCasting3() {
+        Analyzer analyzer = analyzer(loadMapping("mapping-hosts.json", "hosts"));
+
+        analyze("""
+            FROM hosts
+            | EVAL ip = CASE(CIDR_MATCH(ip0, "10.0.0.0/8") OR ip0 IN ("127.0.0.1", "192.168.1.1"::ip), TO_STRING(ip0), null),
+                   field = CASE(ip IS NOT NULL, "a", "b")
+            | STATS count = COUNT(*) BY field
+            """, analyzer);
+    }
+
     public void testDenseVectorImplicitCasting() {
         // https://github.com/elastic/elasticsearch/blob/9.1/x-pack/plugin/esql/src/test/java/org/elasticsearch/xpack/esql/analysis/AnalyzerTests.java#L2376C1-L2376C119
         assumeTrue("dense_vector capability not available", EsqlCapabilities.Cap.DENSE_VECTOR_FIELD_TYPE.isEnabled());
