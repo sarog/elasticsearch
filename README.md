@@ -1,5 +1,3 @@
-[![FreeBSD Tests](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml/badge.svg)](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml)
-
 # Elasticsearch on FreeBSD
 
 ## Overview
@@ -8,17 +6,14 @@ This project is an unofficial port of Elasticsearch for FreeBSD systems. It was 
 
 The following table lists the actively maintained releases on this repository. These versions are tested & supported on FreeBSD 14.4 and presumed to work on 13.5 and 15.x.
 
-| ES   | Branch                                                                | Diff                                                                                                  | Bugzilla                                                         | Makefile                                                                          |
-|------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| 8.19 | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-8.19) | [Link](https://github.com/elastic/elasticsearch/compare/8.19...portsbuild:elasticsearch:freebsd-8.19) | [Link](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=288653) | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch8)  |
-| 9.1  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.1)  | [Link](https://github.com/elastic/elasticsearch/compare/9.1...portsbuild:elasticsearch:freebsd-9.1)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch91) |
-| 9.2  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.2)  | [Link](https://github.com/elastic/elasticsearch/compare/9.2...portsbuild:elasticsearch:freebsd-9.2)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch92) |
-| 9.3  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.3)  | [Link](https://github.com/elastic/elasticsearch/compare/9.3...portsbuild:elasticsearch:freebsd-9.3)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch93) |
-| 9.4  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.4)  | [Link](https://github.com/elastic/elasticsearch/compare/9.4...portsbuild:elasticsearch:freebsd-9.4)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch94) |
-| 9.5  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.5)  | [Link](https://github.com/elastic/elasticsearch/compare/9.5...portsbuild:elasticsearch:freebsd-9.5)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch95) |
+| ES   | Branch                                                                | Diff                                                                                                  | Bugzilla                                                         | Makefile                                                                          | Test                                                                                                                                                                                                                                              |
+|------|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 8.19 | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-8.19) | [Link](https://github.com/elastic/elasticsearch/compare/8.19...portsbuild:elasticsearch:freebsd-8.19) | [Link](https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=288653) | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch8)  | [![FreeBSD 8.19 Tests](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml/badge.svg?branch=freebsd-8.19)](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml?query=branch%3Afreebsd-8.19) |
+| 9.4  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.4)  | [Link](https://github.com/elastic/elasticsearch/compare/9.4...portsbuild:elasticsearch:freebsd-9.4)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch94) | [![FreeBSD 9.4 Tests](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml/badge.svg?branch=freebsd-9.4)](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml?query=branch%3Afreebsd-9.4)    |
+| 9.5  | [Link](https://github.com/portsbuild/elasticsearch/tree/freebsd-9.5)  | [Link](https://github.com/elastic/elasticsearch/compare/9.5...portsbuild:elasticsearch:freebsd-9.5)   | N/A                                                              | [Link](https://github.com/sarog/freebsd-ports/tree/main/textproc/elasticsearch95) | [![FreeBSD 9.5 Tests](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml/badge.svg?branch=freebsd-9.5)](https://github.com/portsbuild/elasticsearch/actions/workflows/freebsd-test.yml?query=branch%3Afreebsd-9.5)    |
 
 
-The following branches are frequently rebased (force-pushed) to keep the repository up-to-date with upstream changes:
+The following branches are frequently rebased (force-pushed) to keep the repository up to date with upstream changes:
 
 | Branch                                                                          | Description                                                                              | Diff                                                                                                         |
 |---------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
@@ -74,10 +69,10 @@ Update `/usr/local/etc/elasticsearch/jvm.options` by adding the following entrie
 -Dorg.elasticsearch.nativeaccess.enableVectorLibrary=true
 ```
 
-Next, ensure Elasticsearch is configured to use OpenJDK 21 by modifying `/etc/rc.conf`:
+Next, ensure Elasticsearch is configured to use OpenJDK 25 by modifying `/etc/rc.conf`:
 
 ```shell
-elasticsearch_java_home="/usr/local/openjdk21"
+elasticsearch_java_home="/usr/local/openjdk25"
 ```
 
 Finally, start the service:
@@ -94,19 +89,15 @@ Building Elasticsearch is fairly straightforward. A FreeBSD-specific archive can
 
 Install the necessary JDKs and other build dependencies to compile and run Elasticsearch.
 
-> [!NOTE]
-> Unfortunately, Elasticsearch can no longer build on FreeBSD natively due to the removal of deprecated JDK versions 20, 22 and 23 from the Ports tree.
-> These instructions are provided for historical reference only.
-
 ```shell
-pkg install bash curl protobuf java/openjdk17 java/openjdk20 java/openjdk21 java/openjdk22 java/openjdk23 java/openjdk25
+pkg install bash curl protobuf gmake java/openjdk17 java/openjdk21 java/openjdk25
 ```
 
-Clone this repository by either checking out a release branch such as `freebsd-8.19` or a specific tag, e.g. `8.19.18`:
+Clone this repository by either checking out a release branch such as `freebsd-8.19` or a specific tag, e.g. `8.19.21`:
 
 ```shell
-git clone --depth 1 --branch v8.19.18 https://github.com/portsbuild/elasticsearch elasticsearch-8.19.18
-cd elasticsearch-8.19.18
+git clone --depth 1 --branch v8.19.21 https://github.com/portsbuild/elasticsearch elasticsearch-8.19.21
+cd elasticsearch-8.19.21
 ```
 
 Set the default JDK to 25 and begin the build:
@@ -114,13 +105,14 @@ Set the default JDK to 25 and begin the build:
 ```shell
 export RUNTIME_JAVA_HOME=/usr/local/openjdk25
 export JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25
-./gradlew distribution:archives:freebsd-tar:assemble -D"build.snapshot=false" -D"license.key=public.key" -Dorg.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25
+./gradlew distribution:archives:freebsd-tar:assemble -Dbuild.snapshot=false -Dlicense.key=public.key -Dfreebsd.override.jdk=true \
+  -Dorg.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk21,/usr/local/openjdk25
 ```
 
 A distribution archive will be created in the following folder:
 
 ```shell
-distribution/archives/freebsd-tar/build/distributions/elasticsearch-8.19.18-freebsd-x86_64.tar.gz
+distribution/archives/freebsd-tar/build/distributions/elasticsearch-8.19.21-freebsd-x86_64.tar.gz
 ```
 
 ### Building the vector library
@@ -128,8 +120,9 @@ distribution/archives/freebsd-tar/build/distributions/elasticsearch-8.19.18-free
 Compiling the vector library is straightforward. From the root of the repository:
 
 ```shell
-export LOCAL_VEC_BINARY_OS=freebsd
-./gradlew buildSharedLibraryAndCopy
+export LOCAL_ZSTD_BINARY=true
+export LOCAL_VEC_BINARY_OS=true
+./gradlew buildSharedLibrary
 ```
 
 Next, copy `libvec.so` to `/usr/local/lib`:
@@ -150,20 +143,22 @@ service elasticsearch (re)start
 
 ## Testing
 
-> [!NOTE]
-> Unfortunately, Elasticsearch can no longer build on FreeBSD natively due to the removal of deprecated JDK versions 20, 22 and 23 from the Ports tree.
-> This also includes running the full suite of tests.
-> These instructions are provided for historical reference only.
-
-A [separate branch](https://github.com/portsbuild/elasticsearch/tree/freebsd-tests) has been created to maintain FreeBSD tests. The decision to keep the tests separate was to avoid cluttering up the release branches. This also eases keeping track of changes between releases.
-
-To run the full suite of tests, switch over to the `freebsd-tests` branch and type:
+To run the full suite of tests, switch over to the desired version branch and type:
 
 ```shell
+export LOCAL_ZSTD_BINARY=true
+export LOCAL_VEC_BINARY_OS=true
 export RUNTIME_JAVA_HOME=/usr/local/openjdk25
 export JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25
-./gradlew test -D"tests.haltonfailure=false" -D"build.snapshot=false" -D"license.key=public.key" -D"run.license_type=trial" -Dorg.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25
+./gradlew test -Dbuild.snapshot=false -Dlicense.key=x-pack/license-tools/src/test/resources/public.key -Drun.license_type=trial -Des.nativelibs.path=/usr/local/lib \
+  -Dxpack.ml.enabled=false -Dtests.haltonfailure=false -Dtests.es.xpack.ml.enabled=false -Dtests.bwc.git_fetch_latest=false \
+  -Dtests.jvm.argline="--add-modules=jdk.incubator.vector --enable-native-access=ALL-UNNAMED -Dbuild.snapshot=false -Dlicense.key=x-pack/license-tools/src/test/resources/public.key -Dfreebsd.tests.skipTestTimeoutPerConnection=true" \
+  -Dfreebsd.override.jdk=true -Dfreebsd.tests.skipTestTimeoutPerConnection=true \
+  -Dorg.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk21,/usr/local/openjdk25
 ```
+<!--
+
+### Note: These instructions are possibly outdated and need to be revisited
 
 For the vector library benchmarks, a copy of `libzstd.so` and `libvec.so` (see [build instructions](#building-the-vector-library)) are required.
 
@@ -174,8 +169,9 @@ cp libs/vec/shared/amd64/libvec.so libs/native/libraries/build/platform/freebsd-
 cp /usr/local/lib/libzstd.so libs/native/libraries/build/platform/freebsd-x64/
 export RUNTIME_JAVA_HOME=/usr/local/openjdk25
 export JAVA_TOOLCHAIN_HOME=/usr/local/openjdk25
-./gradlew -p benchmarks run --args 'Int7uScorerBenchmark' -Dorg.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk20,/usr/local/openjdk21,/usr/local/openjdk22,/usr/local/openjdk23,/usr/local/openjdk25 -D"--enable-native-access=ALL-UNNAMED"
+./gradlew -p benchmarks run --args 'Int7uScorerBenchmark' -Dorg.gradle.java.installations.paths=/usr/local/openjdk17,/usr/local/openjdk21,/usr/local/openjdk25 -D"--enable-native-access=ALL-UNNAMED"
 ```
+-->
 
 ## Support
 
